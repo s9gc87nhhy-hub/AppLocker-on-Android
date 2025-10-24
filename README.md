@@ -92,7 +92,7 @@ Beim ersten Start werden Sie aufgefordert, folgende Berechtigungen zu erteilen:
 ### Verwendete Packages
 
 - `local_auth` - Biometrische Authentifizierung
-- `device_apps` - App-Liste abrufen
+- `installed_apps` - App-Liste abrufen
 - `shared_preferences` - Lokale Datenspeicherung
 - `permission_handler` - Berechtigungsverwaltung
 
