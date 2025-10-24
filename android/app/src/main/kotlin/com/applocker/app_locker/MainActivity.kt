@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.Settings
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
@@ -13,8 +14,11 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "com.applocker.app_locker/permissions"
+    private val LOCK_CHANNEL = "com.applocker.app_locker/lock_screen"
     private val USAGE_STATS_REQUEST_CODE = 1001
     private val SYSTEM_ALERT_WINDOW_REQUEST_CODE = 1002
+
+    private var lockScreenMethodChannel: MethodChannel? = null
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -46,6 +50,36 @@ class MainActivity: FlutterActivity() {
                 else -> {
                     result.notImplemented()
                 }
+            }
+        }
+
+        // Setup lock screen method channel
+        lockScreenMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LOCK_CHANNEL)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        handleLockScreenIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleLockScreenIntent(intent)
+    }
+
+    /**
+     * Verarbeitet Intents vom AppMonitorService, um Lock Screen anzuzeigen
+     */
+    private fun handleLockScreenIntent(intent: Intent?) {
+        intent?.let {
+            val showLockScreen = it.getBooleanExtra("show_lock_screen", false)
+            val packageName = it.getStringExtra("locked_app_package")
+
+            if (showLockScreen && !packageName.isNullOrEmpty()) {
+                // Sende Daten an Flutter, um Lock Screen anzuzeigen
+                lockScreenMethodChannel?.invokeMethod("showLockScreen", mapOf(
+                    "packageName" to packageName
+                ))
             }
         }
     }

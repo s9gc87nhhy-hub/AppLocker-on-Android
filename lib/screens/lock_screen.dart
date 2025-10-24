@@ -55,6 +55,8 @@ class _LockScreenState extends State<LockScreen>
   }
 
   Future<void> _authenticate() async {
+    if (!mounted) return;
+
     setState(() {
       _isAuthenticating = true;
       _statusMessage = 'Authentifizierung läuft...';
@@ -68,6 +70,8 @@ class _LockScreenState extends State<LockScreen>
         localizedReason: 'Authentifizieren Sie sich, um ${widget.appName} zu öffnen',
       );
 
+      if (!mounted) return;
+
       if (result) {
         setState(() {
           _statusMessage = 'Erfolgreich authentifiziert!';
@@ -80,29 +84,38 @@ class _LockScreenState extends State<LockScreen>
           Navigator.pop(context, true);
         }
       } else {
+        // Authentifizierung fehlgeschlagen - automatisch erneut versuchen
         setState(() {
-          _statusMessage = 'Authentifizierung fehlgeschlagen';
+          _statusMessage = 'Authentifizierung fehlgeschlagen. Erneuter Versuch...';
           _isAuthenticating = false;
         });
 
-        // Nach Fehler erneut versuchen
+        // Nach Fehler automatisch erneut versuchen
         await Future.delayed(const Duration(seconds: 2));
         if (mounted) {
-          setState(() {
-            _statusMessage = 'Berühren Sie den Fingerabdruck-Sensor';
-          });
+          _authenticate(); // Automatisch neu starten
         }
       }
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
-        _statusMessage = 'Fehler bei der Authentifizierung';
+        _statusMessage = 'Fehler bei der Authentifizierung. Erneuter Versuch...';
         _isAuthenticating = false;
       });
+
+      // Auch bei Fehlern automatisch erneut versuchen
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        _authenticate(); // Automatisch neu starten
+      }
     }
   }
 
   void _cancel() {
     _authService.stopAuthentication();
+    // Schließe die gesperrte App, indem wir die Authentifizierung als fehlgeschlagen markieren
+    SystemChannels.platform.invokeMethod('SystemNavigator.pop');
     Navigator.pop(context, false);
   }
 
@@ -114,10 +127,11 @@ class _LockScreenState extends State<LockScreen>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false, // Verhindert Zurück-Navigation komplett
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
         _cancel();
-        return false;
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,

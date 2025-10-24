@@ -66,6 +66,11 @@ class AppMonitorService : Service() {
      * Prüft, ob eine gesperrte App gestartet wurde
      */
     private fun checkForLockedApps() {
+        // Prüfe, ob App-Sperre global aktiviert ist
+        if (!isAppLockEnabled()) {
+            return
+        }
+
         val currentTime = System.currentTimeMillis()
         val usageStatsManager = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
 
@@ -83,6 +88,7 @@ class AppMonitorService : Service() {
                 if (packageName != this.packageName) {
                     // Prüfe, ob die App gesperrt ist
                     if (isAppLocked(packageName)) {
+                        android.util.Log.d("AppMonitorService", "Gesperrte App erkannt: $packageName")
                         // Zeige Lock-Screen
                         showLockScreen(packageName)
                     }
@@ -94,12 +100,50 @@ class AppMonitorService : Service() {
     }
 
     /**
+     * Prüft, ob die App-Sperre global aktiviert ist
+     */
+    private fun isAppLockEnabled(): Boolean {
+        val prefs = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+        // Standard ist true, wenn nicht anders angegeben
+        return prefs.getBoolean("flutter.is_app_lock_enabled", true)
+    }
+
+    /**
      * Prüft, ob eine App gesperrt ist
      */
     private fun isAppLocked(packageName: String): Boolean {
         val prefs = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
-        val lockedApps = prefs.getStringSet("flutter.locked_apps", setOf()) ?: setOf()
-        return lockedApps.contains(packageName)
+
+        // Flutter SharedPreferences speichert Listen in einem speziellen Format
+        // Versuche zuerst als String-Set (native Android Weg)
+        val lockedAppsSet = prefs.getStringSet("flutter.locked_apps", null)
+        if (lockedAppsSet != null) {
+            android.util.Log.d("AppMonitorService", "Gesperrte Apps (Set): $lockedAppsSet")
+            return lockedAppsSet.contains(packageName)
+        }
+
+        // Fallback: Versuche als String (Flutter könnte es als JSON speichern)
+        val lockedAppsString = prefs.getString("flutter.locked_apps", null)
+        if (lockedAppsString != null) {
+            val lockedApps = try {
+                // Flutter speichert String-Listen als JSON-Array
+                // Format: ["com.app1", "com.app2"]
+                lockedAppsString
+                    .removeSurrounding("[", "]")
+                    .split(",")
+                    .map { it.trim().removeSurrounding("\"") }
+                    .toSet()
+            } catch (e: Exception) {
+                android.util.Log.e("AppMonitorService", "Fehler beim Parsen der gesperrten Apps: $e")
+                setOf()
+            }
+
+            android.util.Log.d("AppMonitorService", "Gesperrte Apps (String): $lockedApps")
+            return lockedApps.contains(packageName)
+        }
+
+        android.util.Log.d("AppMonitorService", "Keine gesperrten Apps gefunden")
+        return false
     }
 
     /**
