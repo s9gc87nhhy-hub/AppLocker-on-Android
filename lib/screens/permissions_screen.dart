@@ -80,87 +80,89 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
         title: const Text('Berechtigungen erforderlich'),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Icon(
-                Icons.security,
-                size: 80,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Berechtigungen einrichten',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'AppLocker benötigt diese Berechtigungen, um Apps effektiv zu sperren',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 48),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Header
+                Icon(
+                  Icons.security,
+                  size: 80,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Berechtigungen einrichten',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'AppLocker benötigt diese Berechtigungen, um Apps effektiv zu sperren',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 48),
 
-              // Usage Stats Berechtigung
-              _buildPermissionCard(
-                icon: Icons.bar_chart,
-                title: 'App-Nutzungszugriff',
-                description:
-                    'Ermöglicht das Erkennen, wenn eine gesperrte App gestartet wird',
-                isGranted: _usageStatsGranted,
-                onRequest: _requestUsageStats,
-              ),
-
-              const SizedBox(height: 16),
-
-              // System Alert Window Berechtigung
-              _buildPermissionCard(
-                icon: Icons.layers,
-                title: 'Über anderen Apps anzeigen',
-                description:
-                    'Ermöglicht das Anzeigen des Lock-Screens über anderen Apps',
-                isGranted: _systemAlertGranted,
-                onRequest: _requestSystemAlert,
-              ),
-
-              const Spacer(),
-
-              // Weiter-Button
-              if (allGranted)
-                ElevatedButton.icon(
-                  onPressed: _navigateToHome,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Weiter'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                )
-              else
-                OutlinedButton.icon(
-                  onPressed: _checkPermissions,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Status aktualisieren'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
+                // Usage Stats Berechtigung
+                _buildPermissionCard(
+                  icon: Icons.bar_chart,
+                  title: 'App-Nutzungszugriff',
+                  description:
+                      'Ermöglicht das Erkennen, wenn eine gesperrte App gestartet wird',
+                  isGranted: _usageStatsGranted,
+                  onRequest: _requestUsageStats,
                 ),
 
-              const SizedBox(height: 16),
-            ],
+                const SizedBox(height: 16),
+
+                // System Alert Window Berechtigung
+                _buildPermissionCard(
+                  icon: Icons.layers,
+                  title: 'Über anderen Apps anzeigen',
+                  description:
+                      'Ermöglicht das Anzeigen des Lock-Screens über anderen Apps',
+                  isGranted: _systemAlertGranted,
+                  onRequest: _requestSystemAlert,
+                ),
+
+                const SizedBox(height: 48),
+
+                // Weiter-Button
+                if (allGranted)
+                  ElevatedButton.icon(
+                    onPressed: _navigateToHome,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text('Weiter'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  )
+                else
+                  OutlinedButton.icon(
+                    onPressed: _checkPermissions,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Status aktualisieren'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
