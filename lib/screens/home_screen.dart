@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:device_apps/device_apps.dart';
+import 'package:installed_apps/installed_apps.dart';
+import 'package:installed_apps/app_info.dart' as installed;
 import 'package:permission_handler/permission_handler.dart';
 import '../models/app_info.dart';
 import '../services/app_lock_service.dart';
@@ -54,21 +55,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       // Lade alle installierten Apps
-      final apps = await DeviceApps.getInstalledApplications(
-        includeAppIcons: true,
-        includeSystemApps: false,
-        onlyAppsWithLaunchIntent: true,
+      final apps = await InstalledApps.getInstalledApps(
+        true, // includeAppIcons
+        false, // includeSystemApps
       );
 
       // Lade gesperrte Apps
       final lockedPackages = await _appLockService.getLockedApps();
 
-      // Konvertiere zu AppInfo-Objekten
-      final appInfoList = apps.map((app) {
+      // Konvertiere zu AppInfo-Objekten und filtere Apps mit Launch Intent
+      final appInfoList = apps.where((app) {
+        // Nur Apps mit Launch Intent einbeziehen
+        return app.packageName.isNotEmpty;
+      }).map((app) {
         return AppInfo(
-          appName: app.appName,
+          appName: app.name,
           packageName: app.packageName,
-          icon: app is ApplicationWithIcon ? app.icon : null,
+          icon: app.icon,
           isLocked: lockedPackages.contains(app.packageName),
         );
       }).toList();

@@ -71,7 +71,7 @@
 local_auth: ^2.1.7              # Biometrische Authentifizierung
 local_auth_android: ^1.0.34     # Android-spezifische Auth-Implementierung
 shared_preferences: ^2.2.2      # Lokale Datenspeicherung
-device_apps: ^2.2.0             # Installierte Apps abrufen
+installed_apps: ^1.8.0          # Installierte Apps abrufen
 permission_handler: ^11.0.1     # Berechtigungen verwalten
 flutter_secure_storage: ^9.0.0  # Sichere Datenspeicherung
 ```

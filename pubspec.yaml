@@ -13,7 +13,7 @@ dependencies:
   local_auth: ^2.1.7
   local_auth_android: ^1.0.34
   shared_preferences: ^2.2.2
-  device_apps: ^2.2.0
+  installed_apps: ^1.8.0
   permission_handler: ^11.0.1
   flutter_secure_storage: ^9.0.0
 
