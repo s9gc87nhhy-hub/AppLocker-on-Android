@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:installed_apps/app_info.dart';
 import 'package:installed_apps/installed_apps.dart';
+import '../models/app_info.dart';
 import '../screens/lock_screen.dart';
 
 class LockScreenService {
@@ -47,7 +47,7 @@ class LockScreenService {
         final result = await Navigator.of(_context!).push(
           MaterialPageRoute(
             builder: (context) => LockScreen(
-              appName: appInfo.name,
+              appName: appInfo.appName,
               packageName: packageName,
             ),
             fullscreenDialog: true,
@@ -67,14 +67,30 @@ class LockScreenService {
   /// Holt Informationen über eine installierte App
   Future<AppInfo?> _getAppInfo(String packageName) async {
     try {
-      final apps = await InstalledApps.getInstalledApps(false, true);
-      return apps.firstWhere(
+      final apps = await InstalledApps.getInstalledApps(
+        true, // includeAppIcons
+        false, // includeSystemApps
+      );
+
+      // Find the app and convert to local AppInfo model
+      final installedApp = apps.cast<dynamic>().firstWhere(
         (app) => app.packageName == packageName,
-        orElse: () => AppInfo(
-          name: packageName,
-          packageName: packageName,
-          icon: null,
-        ),
+        orElse: () => null,
+      );
+
+      if (installedApp != null) {
+        return AppInfo(
+          appName: installedApp.name,
+          packageName: installedApp.packageName,
+          icon: installedApp.icon,
+        );
+      }
+
+      // Fallback if app not found
+      return AppInfo(
+        appName: packageName,
+        packageName: packageName,
+        icon: null,
       );
     } catch (e) {
       print('Fehler beim Abrufen der App-Informationen: $e');
