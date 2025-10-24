@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/permissions_screen.dart';
+import 'services/lock_screen_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,12 +15,32 @@ void main() {
   runApp(const AppLockerApp());
 }
 
-class AppLockerApp extends StatelessWidget {
+class AppLockerApp extends StatefulWidget {
   const AppLockerApp({super.key});
+
+  @override
+  State<AppLockerApp> createState() => _AppLockerAppState();
+}
+
+class _AppLockerAppState extends State<AppLockerApp> {
+  final _lockScreenService = LockScreenService();
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialisiere Lock Screen Service nach dem ersten Frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_navigatorKey.currentContext != null) {
+        _lockScreenService.initialize(_navigatorKey.currentContext!);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'AppLocker',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
