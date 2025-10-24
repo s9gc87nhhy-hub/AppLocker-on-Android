@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  local_auth: ^2.1.7
+  local_auth: ^2.1.6
   local_auth_android: ^1.0.34
   shared_preferences: ^2.2.2
   installed_apps: ^1.8.0
